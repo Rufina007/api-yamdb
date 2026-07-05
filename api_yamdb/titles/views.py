@@ -3,7 +3,7 @@ from rest_framework.pagination import LimitOffsetPagination
 
 from .models import Category, Genre, Title
 from .permissions import IsAdminOrReadOnly  # напишите его, пожалуйста
-from .serializers import (  # это будет написано позже
+from ..api.serializers import (  # это будет написано позже
     CategorySerializer,
     GenreSerializer,
     TitleSerializer,
