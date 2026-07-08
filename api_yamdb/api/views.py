@@ -8,8 +8,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 
-from api.permissions import (IsAuthorModeratorAdminOrReadOnly)
-from api.serializers import CommentSerializer, ReviewSerializer
+from api.permissions import IsAuthorModeratorAdminOrReadOnly
 from reviews.models import Review, Title, User
 from api.serializers import (
     CommentSerializer, ReviewSerializer,
