@@ -31,6 +31,27 @@ class TokenSerializer(serializers.Serializer):
     confirmation_code = serializers.CharField()
 
 
+class UserSerializer(serializers.ModelSerializer):
+    """Используется администратором для CRUD по /api/v1/users/."""
+
+    class Meta:
+        model = User
+        fields = (
+            'username', 'email', 'first_name',
+            'last_name', 'bio', 'role',
+        )
+
+
+class MeSerializer(UserSerializer):
+    """Используется пользователем для просмотра/правки /users/me/.
+
+    Поле role доступно только на чтение — сменить себе роль нельзя.
+    """
+
+    class Meta(UserSerializer.Meta):
+        read_only_fields = ('role',)
+
+
 class ReviewSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
         read_only=True,
