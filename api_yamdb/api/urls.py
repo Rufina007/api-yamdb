@@ -2,7 +2,7 @@ from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
 from api.views import (
-    CommentViewSet, ReviewViewSet, get_token, signup,
+    CommentViewSet, ReviewViewSet, UserViewSet, get_token, signup,
 )
 
 v1_router = DefaultRouter()
@@ -16,6 +16,7 @@ v1_router.register(
     CommentViewSet,
     basename='comments'
 )
+v1_router.register('users', UserViewSet, basename='users')
 
 auth_urls = [
     path('signup/', signup, name='signup'),
