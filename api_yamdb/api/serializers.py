@@ -1,31 +1,27 @@
 from rest_framework import serializers
 
-from reviews.models import Title, Category, Genre
+from reviews.models import Comment, Review
 
 
-class CategorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Category
-        fields = ('id', 'name', 'slug')
-
-
-class GenreSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Genre
-        fields = ('id', 'name', 'slug')
-
-
-class TitleSerializer(serializers.ModelSerializer):
-    genre = serializers.SlugRelatedField(
-        many=True,
+class ReviewSerializer(serializers.ModelSerializer):
+    author = serializers.SlugRelatedField(
         read_only=True,
-        slug_field='slug'
-    )
-    category = serializers.SlugRelatedField(
-        read_only=True,
-        slug_field='slug'
+        slug_field='username'
     )
 
     class Meta:
-        model = Title
-        fields = ('id', 'name', 'year', 'description', 'genre', 'category')
+        model = Review
+        fields = ('id', 'text', 'author', 'score', 'pub_date')
+        read_only_fields = ('pub_date',)
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    author = serializers.SlugRelatedField(
+        read_only=True,
+        slug_field='username'
+    )
+
+    class Meta:
+        model = Comment
+        fields = ('id', 'text', 'author', 'pub_date')
+        read_only_fields = ('pub_date',)
