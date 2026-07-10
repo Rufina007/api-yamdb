@@ -7,6 +7,7 @@ from api.views import (
     GenreViewSet,
     ReviewViewSet,
     TitleViewSet,
+    UserViewSet,
     get_token,
     signup,
 )
@@ -25,6 +26,7 @@ v1_router.register(
 v1_router.register('categories', CategoryViewSet, basename='categories')
 v1_router.register('genres', GenreViewSet, basename='genres')
 v1_router.register('titles', TitleViewSet, basename='titles')
+v1_router.register('users', UserViewSet, basename='users')
 
 auth_urls = [
     path('signup/', signup, name='signup'),
