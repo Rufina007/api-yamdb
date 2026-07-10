@@ -1,7 +1,32 @@
+from django.db.models import Avg
 from rest_framework import serializers
 
-from reviews.models import Comment, Review, User
+from reviews.models import Category, Comment, Genre, Review, Title, User
 from reviews.validators import validate_username
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    author = serializers.SlugRelatedField(
+        read_only=True,
+        slug_field='username'
+    )
+
+    class Meta:
+        model = Review
+        fields = ('id', 'text', 'author', 'score', 'pub_date')
+        read_only_fields = ('pub_date',)
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    author = serializers.SlugRelatedField(
+        read_only=True,
+        slug_field='username'
+    )
+
+    class Meta:
+        model = Comment
+        fields = ('id', 'text', 'author', 'pub_date')
+        read_only_fields = ('pub_date',)
 
 
 class SignUpSerializer(serializers.Serializer):
@@ -32,8 +57,6 @@ class TokenSerializer(serializers.Serializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    """Используется администратором для CRUD по /api/v1/users/."""
-
     class Meta:
         model = User
         fields = (
@@ -43,34 +66,49 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class MeSerializer(UserSerializer):
-    """Используется пользователем для просмотра/правки /users/me/.
-
-    Поле role доступно только на чтение — сменить себе роль нельзя.
-    """
-
     class Meta(UserSerializer.Meta):
         read_only_fields = ('role',)
 
 
-class ReviewSerializer(serializers.ModelSerializer):
-    author = serializers.SlugRelatedField(
-        read_only=True,
-        slug_field='username'
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ('name', 'slug')
+
+
+class GenreSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Genre
+        fields = ('name', 'slug')
+
+
+class TitleReadSerializer(serializers.ModelSerializer):
+    genre = GenreSerializer(many=True, read_only=True)
+    category = CategorySerializer(read_only=True)
+    rating = serializers.SerializerMethodField()
+
+    def get_rating(self, obj):
+        avg = obj.reviews.aggregate(Avg('score'))['score__avg']
+        return round(avg, 2) if avg is not None else None
+
+    class Meta:
+        model = Title
+        fields = ('id', 'name', 'year', 'rating', 'description', 'genre', 'category')
+
+
+class TitleWriteSerializer(serializers.ModelSerializer):
+    genre = serializers.SlugRelatedField(
+        many=True,
+        queryset=Genre.objects.all(),
+        slug_field='slug'
+    )
+    category = serializers.SlugRelatedField(
+        queryset=Category.objects.all(),
+        slug_field='slug',
+        allow_null=True,
+        required=False
     )
 
     class Meta:
-        model = Review
-        fields = ('id', 'text', 'author', 'score', 'pub_date')
-        read_only_fields = ('pub_date',)
-
-
-class CommentSerializer(serializers.ModelSerializer):
-    author = serializers.SlugRelatedField(
-        read_only=True,
-        slug_field='username'
-    )
-
-    class Meta:
-        model = Comment
-        fields = ('id', 'text', 'author', 'pub_date')
-        read_only_fields = ('pub_date',)
+        model = Title
+        fields = ('id', 'name', 'year', 'description', 'genre', 'category')

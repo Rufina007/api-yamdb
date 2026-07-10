@@ -2,7 +2,14 @@ from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
 from api.views import (
-    CommentViewSet, ReviewViewSet, UserViewSet, get_token, signup,
+    CategoryViewSet,
+    CommentViewSet,
+    GenreViewSet,
+    ReviewViewSet,
+    TitleViewSet,
+    UserViewSet,
+    get_token,
+    signup,
 )
 
 v1_router = DefaultRouter()
@@ -16,6 +23,9 @@ v1_router.register(
     CommentViewSet,
     basename='comments'
 )
+v1_router.register('categories', CategoryViewSet, basename='categories')
+v1_router.register('genres', GenreViewSet, basename='genres')
+v1_router.register('titles', TitleViewSet, basename='titles')
 v1_router.register('users', UserViewSet, basename='users')
 
 auth_urls = [
