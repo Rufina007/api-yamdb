@@ -2,9 +2,6 @@ from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
 from api.views import (
-<<<<<<< Updated upstream
-    CommentViewSet, ReviewViewSet, get_token, signup,
-=======
     CategoryViewSet,
     CommentViewSet,
     GenreViewSet,
@@ -12,7 +9,6 @@ from api.views import (
     TitleViewSet,
     get_token,
     signup,
->>>>>>> Stashed changes
 )
 
 v1_router = DefaultRouter()
@@ -29,11 +25,6 @@ v1_router.register(
 v1_router.register('categories', CategoryViewSet, basename='categories')
 v1_router.register('genres', GenreViewSet, basename='genres')
 v1_router.register('titles', TitleViewSet, basename='titles')
-
-auth_urls = [
-    path('signup/', signup, name='signup'),
-    path('token/', get_token, name='token'),
-]
 
 auth_urls = [
     path('signup/', signup, name='signup'),
