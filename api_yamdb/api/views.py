@@ -10,7 +10,9 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 
-from api.permissions import IsAdmin, IsAdminOrReadOnly, IsAuthorModeratorAdminOrReadOnly
+from api.permissions import (
+    IsAdmin, IsAdminOrReadOnly, IsAuthorModeratorAdminOrReadOnly
+)
 from api.serializers import (
     CategorySerializer,
     CommentSerializer,
@@ -23,7 +25,7 @@ from api.serializers import (
     TokenSerializer,
     UserSerializer,
 )
-from reviews.models import Category, Comment, Genre, Review, Title, User
+from reviews.models import Category, Genre, Review, Title, User
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -88,7 +90,9 @@ def send_confirmation_code(user):
     send_mail(
         subject='Код подтверждения YaMDb',
         message=f'Ваш код подтверждения: {confirmation_code}',
-        from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'yamdb@example.com'),
+        from_email=getattr(
+            settings, 'DEFAULT_FROM_EMAIL', 'yamdb@example.com'
+        ),
         recipient_list=[user.email],
         fail_silently=False,
     )
@@ -162,7 +166,21 @@ class TitleViewSet(viewsets.ModelViewSet):
     http_method_names = ['get', 'post', 'patch', 'delete', 'head', 'options']
 
     def get_queryset(self):
-        return Title.objects.annotate(rating=Avg('reviews__score'))
+        queryset = Title.objects.annotate(rating=Avg('reviews__score'))
+        params = self.request.query_params
+        genre = params.get('genre')
+        category = params.get('category')
+        name = params.get('name')
+        year = params.get('year')
+        if genre:
+            queryset = queryset.filter(genre__slug=genre)
+        if category:
+            queryset = queryset.filter(category__slug=category)
+        if name:
+            queryset = queryset.filter(name__icontains=name)
+        if year:
+            queryset = queryset.filter(year=year)
+        return queryset
 
     def get_serializer_class(self):
         if self.request.method in ('POST', 'PATCH'):

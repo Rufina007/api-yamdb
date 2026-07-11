@@ -11,6 +11,18 @@ class ReviewSerializer(serializers.ModelSerializer):
         slug_field='username'
     )
 
+    def validate(self, data):
+        if self.instance is None:
+            request = self.context.get('request')
+            title_id = self.context['view'].kwargs.get('title_id')
+            if Review.objects.filter(
+                title_id=title_id, author=request.user
+            ).exists():
+                raise serializers.ValidationError(
+                    'Вы уже оставили отзыв на это произведение.'
+                )
+        return data
+
     class Meta:
         model = Review
         fields = ('id', 'text', 'author', 'score', 'pub_date')
@@ -93,7 +105,9 @@ class TitleReadSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Title
-        fields = ('id', 'name', 'year', 'rating', 'description', 'genre', 'category')
+        fields = (
+            'id', 'name', 'year', 'rating', 'description', 'genre', 'category'
+        )
 
 
 class TitleWriteSerializer(serializers.ModelSerializer):
