@@ -55,10 +55,13 @@ class UserViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
-class ReviewViewSet(viewsets.ModelViewSet):
-    serializer_class = ReviewSerializer
+class BaseReviewCommentViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthorModeratorAdminOrReadOnly,)
-    http_method_names = ['get', 'post', 'patch', 'delete', 'head', 'options']
+    http_method_names = ('get', 'post', 'patch', 'delete', 'head', 'options')
+
+
+class ReviewViewSet(BaseReviewCommentViewSet):
+    serializer_class = ReviewSerializer
 
     def get_title(self):
         return get_object_or_404(Title, pk=self.kwargs['title_id'])
@@ -70,10 +73,8 @@ class ReviewViewSet(viewsets.ModelViewSet):
         serializer.save(author=self.request.user, title=self.get_title())
 
 
-class CommentViewSet(viewsets.ModelViewSet):
+class CommentViewSet(BaseReviewCommentViewSet):
     serializer_class = CommentSerializer
-    permission_classes = (IsAuthorModeratorAdminOrReadOnly,)
-    http_method_names = ['get', 'post', 'patch', 'delete', 'head', 'options']
 
     def get_review(self):
         return get_object_or_404(Review, pk=self.kwargs['review_id'])
@@ -103,10 +104,7 @@ def send_confirmation_code(user):
 def signup(request):
     serializer = SignUpSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    user, _ = User.objects.get_or_create(
-        username=serializer.validated_data['username'],
-        email=serializer.validated_data['email'],
-    )
+    user = serializer.save()
     send_confirmation_code(user)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -163,7 +161,7 @@ class GenreViewSet(
 class TitleViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdminOrReadOnly,)
     pagination_class = LimitOffsetPagination
-    http_method_names = ['get', 'post', 'patch', 'delete', 'head', 'options']
+    http_method_names = ('get', 'post', 'patch', 'delete', 'head', 'options')
 
     def get_queryset(self):
         queryset = Title.objects.annotate(rating=Avg('reviews__score'))

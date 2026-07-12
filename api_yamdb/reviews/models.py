@@ -17,27 +17,32 @@ ROLE_CHOICES = (
     (ADMIN, 'Администратор'),
 )
 
+MAX_USERNAME_LENGTH = 150
+MAX_EMAIL_LENGTH = 254
+MAX_NAME_LENGTH = 150
+MAX_ROLE_LENGTH = 20
+
 
 class User(AbstractUser):
     username = models.CharField(
         verbose_name='Имя пользователя',
-        max_length=150,
+        max_length=MAX_USERNAME_LENGTH,
         unique=True,
         validators=[validate_username],
     )
     email = models.EmailField(
         verbose_name='Электронная почта',
-        max_length=254,
+        max_length=MAX_EMAIL_LENGTH,
         unique=True,
     )
     first_name = models.CharField(
         verbose_name='Имя',
-        max_length=150,
+        max_length=MAX_NAME_LENGTH,
         blank=True
     )
     last_name = models.CharField(
         verbose_name='Фамилия',
-        max_length=150,
+        max_length=MAX_NAME_LENGTH,
         blank=True
     )
     bio = models.TextField(
@@ -46,7 +51,7 @@ class User(AbstractUser):
     )
     role = models.CharField(
         verbose_name='Роль',
-        max_length=20,
+        max_length=MAX_ROLE_LENGTH,
         choices=ROLE_CHOICES,
         default=USER,
     )
@@ -149,7 +154,7 @@ class Review(models.Model):
     pub_date = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ['-pub_date']
+        ordering = ('-pub_date',)
         constraints = [
             models.UniqueConstraint(
                 fields=['title', 'author'],
@@ -176,7 +181,7 @@ class Comment(models.Model):
     pub_date = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ['-pub_date']
+        ordering = ('-pub_date',)
 
     def __str__(self):
         return self.text

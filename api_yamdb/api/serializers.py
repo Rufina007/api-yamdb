@@ -62,6 +62,10 @@ class SignUpSerializer(serializers.Serializer):
             )
         return data
 
+    def create(self, validated_data):
+        user, _ = User.objects.get_or_create(**validated_data)
+        return user
+
 
 class TokenSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=150)

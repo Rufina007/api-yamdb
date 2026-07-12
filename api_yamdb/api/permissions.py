@@ -11,13 +11,13 @@ class IsAdmin(permissions.BasePermission):
         )
 
 
-class IsAdminOrReadOnly(permissions.BasePermission):
+class IsAdminOrReadOnly(IsAdmin):
     """Читать могут все, изменять — только администратор."""
 
     def has_permission(self, request, view):
         return (
             request.method in permissions.SAFE_METHODS
-            or (request.user.is_authenticated and request.user.is_admin)
+            or super().has_permission(request, view)
         )
 
 
@@ -33,6 +33,6 @@ class IsAuthorModeratorAdminOrReadOnly(permissions.BasePermission):
         return (
             request.method in permissions.SAFE_METHODS
             or obj.author == request.user
-            or request.user.is_superuser
-            or getattr(request.user, 'role', None) in ('moderator', 'admin')
+            or request.user.is_moderator
+            or request.user.is_admin
         )
