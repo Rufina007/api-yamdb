@@ -53,13 +53,13 @@ python3 manage.py runserver
 
 Тестовые данные находятся в директории `api_yamdb/static/data/`.
 
-Для импорта выполнить в папке `api_yamdb`:
+Для загрузки данных в базу выполнить в папке `api_yamdb`:
 
 ```bash
-python3 manage.py shell
+python3 manage.py import_csv
 ```
 
-Или воспользоваться Django Admin после создания суперпользователя:
+Для доступа к админ-панели создать суперпользователя:
 
 ```bash
 python3 manage.py createsuperuser

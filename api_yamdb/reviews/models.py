@@ -17,16 +17,19 @@ ROLE_CHOICES = (
     (ADMIN, 'Администратор'),
 )
 
-MAX_USERNAME_LENGTH = 150
+MAX_CHAR_LENGTH = 150
 MAX_EMAIL_LENGTH = 254
-MAX_NAME_LENGTH = 150
 MAX_ROLE_LENGTH = 20
+MAX_NAME_LENGTH = 256
+MAX_SLUG_LENGTH = 50
+MIN_SCORE = 1
+MAX_SCORE = 10
 
 
 class User(AbstractUser):
     username = models.CharField(
         verbose_name='Имя пользователя',
-        max_length=MAX_USERNAME_LENGTH,
+        max_length=MAX_CHAR_LENGTH,
         unique=True,
         validators=[validate_username],
     )
@@ -37,12 +40,12 @@ class User(AbstractUser):
     )
     first_name = models.CharField(
         verbose_name='Имя',
-        max_length=MAX_NAME_LENGTH,
+        max_length=MAX_CHAR_LENGTH,
         blank=True
     )
     last_name = models.CharField(
         verbose_name='Фамилия',
-        max_length=MAX_NAME_LENGTH,
+        max_length=MAX_CHAR_LENGTH,
         blank=True
     )
     bio = models.TextField(
@@ -73,35 +76,37 @@ class User(AbstractUser):
         return self.username
 
 
-class Category(models.Model):
-    name = models.CharField(max_length=256, verbose_name='Название')
-    slug = models.SlugField(max_length=50, unique=True, verbose_name='Слаг')
+class NameSlugModel(models.Model):
+    name = models.CharField(
+        max_length=MAX_NAME_LENGTH, verbose_name='Название'
+    )
+    slug = models.SlugField(
+        max_length=MAX_SLUG_LENGTH, unique=True, verbose_name='Слаг'
+    )
 
     class Meta:
+        abstract = True
+        ordering = ('name',)
+
+    def __str__(self):
+        return self.name
+
+
+class Category(NameSlugModel):
+    class Meta(NameSlugModel.Meta):
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
-        ordering = ('name',)
-
-    def __str__(self):
-        return self.name
 
 
-class Genre(models.Model):
-    name = models.CharField(max_length=256, verbose_name='Название')
-    slug = models.SlugField(max_length=50, unique=True, verbose_name='Слаг')
-
-    class Meta:
+class Genre(NameSlugModel):
+    class Meta(NameSlugModel.Meta):
         verbose_name = 'Жанр'
         verbose_name_plural = 'Жанры'
-        ordering = ('name',)
-
-    def __str__(self):
-        return self.name
 
 
 class Title(models.Model):
     name = models.CharField(
-        max_length=256,
+        max_length=MAX_NAME_LENGTH,
         verbose_name='Название'
     )
     year = models.IntegerField(
@@ -149,7 +154,7 @@ class Review(models.Model):
         related_name='reviews'
     )
     score = models.IntegerField(
-        validators=[MinValueValidator(1), MaxValueValidator(10)]
+        validators=[MinValueValidator(MIN_SCORE), MaxValueValidator(MAX_SCORE)]
     )
     pub_date = models.DateTimeField(auto_now_add=True)
 
